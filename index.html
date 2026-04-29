@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CENDAT Lens — Lenguaje Natural</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --violet: #7C3AED;
+    --violet-dark: #6D28D9;
+    --violet-xdark: #2E1065;
+    --violet-light: #F5F3FF;
+    --violet-mid: #DDD6FE;
+    --lavender: #C4B5FD;
+    --dark: #0D0A18;
+    --dark2: #130D2A;
+    --dark3: #1E1535;
+    --dark4: #2D2050;
+    --gray: #6B7280;
+    --gray-light: #F9FAFB;
+    --gray-mid: #E5E7EB;
+    --white: #FFFFFF;
+    --text: #111827;
+    --text2: #374151;
+    --text3: #6B7280;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font: 'Barlow', sans-serif;
+    --font-cond: 'Barlow Condensed', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--white); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.96); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-mid);
+    padding: 0 2rem; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo-text { font-family: var(--font-cond); font-weight: 700; font-size: 1.25rem; color: var(--dark); letter-spacing: 0.04em; }
+  .nav-logo-lens { font-family: var(--font-cond); font-weight: 800; font-size: 1.25rem; color: var(--violet); letter-spacing: 0.04em; }
+  .nav-links { display: flex; align-items: center; gap: 2rem; }
+  .nav-links a { font-size: 0.9rem; font-weight: 500; color: var(--text2); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--violet); }
+  .nav-cta {
+    background: var(--violet) !important; color: var(--white) !important;
+    padding: 0.5rem 1.25rem; border-radius: 6px; font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--violet-dark) !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: var(--dark);
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 100px 6vw 80px;
+    gap: 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -300px; left: -200px;
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(124,58,237,0.16) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -100px; right: 5%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-left { position: relative; z-index: 1; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.35);
+    color: #C4B5FD; padding: 0.35rem 0.9rem; border-radius: 100px;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--violet); animation: pulse-dot 2.5s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
+  .hero h1 {
+    font-family: var(--font-cond); font-size: clamp(2.8rem, 5vw, 4.2rem); font-weight: 800;
+    line-height: 1.05; color: var(--white); margin-bottom: 1.5rem; letter-spacing: -0.01em;
+  }
+  .hero h1 em { color: var(--lavender); font-style: normal; }
+  .hero-sub {
+    font-size: 1.1rem; color: #9CA3AF; line-height: 1.75; margin-bottom: 2.5rem; max-width: 480px;
+  }
+  .hero-tagline {
+    font-family: var(--font-cond); font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(196,181,253,0.5); margin-bottom: 1.5rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--violet); color: var(--white); text-decoration: none;
+    padding: 0.875rem 1.75rem; border-radius: var(--radius-sm);
+    font-weight: 700; font-size: 0.95rem; transition: all 0.2s; font-family: var(--font);
+  }
+  .btn-primary:hover { background: var(--violet-dark); transform: translateY(-1px); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--white); text-decoration: none;
+    padding: 0.875rem 1.75rem; border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,0.18); font-weight: 600; font-size: 0.95rem;
+    transition: all 0.2s; font-family: var(--font);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.35); }
+
+  /* ── HERO MOCKUP: nube de palabras SVG ── */
+  .hero-right { position: relative; z-index: 1; }
+  .hero-mockup {
+    background: #0F0B1E; border: 1px solid rgba(124,58,237,0.2);
+    border-radius: var(--radius); overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.7), 0 0 60px rgba(124,58,237,0.08);
+  }
+  .mockup-bar {
+    background: #1A1030; border-bottom: 1px solid rgba(124,58,237,0.15);
+    padding: 10px 16px; display: flex; align-items: center; gap: 6px;
+  }
+  .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .mockup-title {
+    font-family: var(--font-cond); font-size: 0.7rem; color: #6B7280;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-left: 8px; font-weight: 600;
+  }
+  .mockup-body { padding: 1.25rem; }
+  .mockup-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .m-metric {
+    background: #1A1030; border-radius: 8px; padding: 10px 12px;
+    border: 1px solid rgba(124,58,237,0.15);
+  }
+  .m-label { font-size: 0.62rem; color: #6B7280; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+  .m-val { font-family: var(--font-cond); font-size: 1.3rem; font-weight: 700; }
+  .m-val.violet { color: #A78BFA; }
+  .m-val.green { color: #34D399; }
+  .m-val.amber { color: #FBBF24; }
+  .word-cloud-wrap {
+    background: #1A1030; border-radius: 8px; padding: 1rem;
+    border: 1px solid rgba(124,58,237,0.12); margin-bottom: 12px; position: relative;
+  }
+  .wc-label { font-size: 0.62rem; color: #6B7280; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
+  .word-cloud { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 80px; }
+  .word { font-family: var(--font-cond); font-weight: 700; cursor: default; transition: opacity 0.2s; line-height: 1; }
+  .word:hover { opacity: 0.7; }
+  .sentiment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sent-card {
+    background: #1A1030; border-radius: 8px; padding: 10px 12px;
+    border: 1px solid rgba(124,58,237,0.12);
+  }
+  .sent-title { font-size: 0.62rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
+  .sent-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .sent-bar { height: 6px; border-radius: 3px; }
+  .sent-pct { font-family: var(--font-cond); font-size: 0.85rem; font-weight: 700; }
+  .hero-stats { display: flex; gap: 2rem; margin-top: 2.5rem; }
+  .h-stat-val { font-family: var(--font-cond); font-size: 2rem; font-weight: 800; color: var(--white); line-height: 1; }
+  .h-stat-val span { color: var(--lavender); }
+  .h-stat-label { font-size: 0.78rem; color: #6B7280; margin-top: 2px; }
+
+  /* ── SECTION BASE ── */
+  section { padding: 6rem 6vw; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-cond); font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--violet);
+    margin-bottom: 1rem;
+  }
+  .section-label::before { content: ''; display: block; width: 24px; height: 2px; background: var(--violet); }
+  h2 { font-family: var(--font-cond); font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; line-height: 1.1; color: var(--text); }
+  h2 em { color: var(--violet); font-style: normal; }
+  .section-sub { font-size: 1.05rem; color: var(--text3); max-width: 560px; margin-top: 1rem; line-height: 1.7; }
+
+  /* ── PAINS ── */
+  .pains { background: var(--gray-light); }
+  .pains-header { margin-bottom: 3rem; }
+  .pains-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .pain-card {
+    background: var(--white); border-radius: var(--radius); padding: 2rem;
+    border: 1px solid var(--gray-mid); position: relative; overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .pain-card:hover { box-shadow: 0 12px 40px rgba(124,58,237,0.08); transform: translateY(-2px); }
+  .pain-num {
+    font-family: var(--font-cond); font-size: 3.5rem; font-weight: 800;
+    color: var(--violet-mid); line-height: 1; margin-bottom: 0.75rem; letter-spacing: -0.02em;
+  }
+  .pain-card h3 { font-family: var(--font-cond); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .pain-card p { font-size: 0.9rem; color: var(--text3); line-height: 1.7; }
+  .pain-accent { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--violet), var(--lavender)); }
+
+  /* ── HOW IT WORKS ── */
+  .how { background: var(--white); }
+  .how-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; margin-top: 3rem; }
+  .how-steps { display: flex; flex-direction: column; gap: 0; }
+  .how-step { display: flex; gap: 1.25rem; align-items: flex-start; padding-bottom: 1.75rem; position: relative; }
+  .how-step:not(:last-child)::after {
+    content: ''; position: absolute; left: 19px; top: 44px; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--violet-mid), transparent);
+  }
+  .how-step-num {
+    flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--violet); color: var(--white); display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-cond); font-size: 1rem; font-weight: 800; position: relative; z-index: 1;
+  }
+  .how-step-content h3 { font-family: var(--font-cond); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem; margin-top: 8px; }
+  .how-step-content p { font-size: 0.9rem; color: var(--text3); line-height: 1.65; }
+  .how-visual {
+    background: var(--dark); border-radius: var(--radius); padding: 1.75rem;
+    border: 1px solid rgba(124,58,237,0.15);
+    position: sticky; top: 90px;
+  }
+  .flow-item {
+    display: flex; align-items: center; gap: 12px; padding: 11px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .flow-item:last-child { border-bottom: none; }
+  .flow-icon-wrap {
+    width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(124,58,237,0.15);
+  }
+  .flow-icon-wrap svg { width: 17px; height: 17px; stroke: #A78BFA; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .flow-text-main { font-family: var(--font-cond); font-size: 0.85rem; font-weight: 700; color: var(--white); }
+  .flow-text-sub { font-size: 0.72rem; color: #6B7280; margin-top: 1px; }
+  .flow-arrow { margin-left: auto; color: var(--violet); font-size: 1.1rem; }
+  .tech-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.05); }
+  .tech-pill {
+    background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.25);
+    color: #C4B5FD; padding: 0.35rem 0.85rem; border-radius: 100px;
+    font-size: 0.75rem; font-weight: 600; font-family: var(--font-cond); letter-spacing: 0.03em;
+  }
+
+  /* ── DASHBOARDS ── */
+  .dashboards { background: var(--dark); }
+  .dashboards h2 { color: var(--white); }
+  .dashboards .section-label { color: #A78BFA; }
+  .dashboards .section-label::before { background: #A78BFA; }
+  .dashboards .section-sub { color: #9CA3AF; }
+  .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 3rem; }
+  .dash-card {
+    background: #0F0B1E; border: 1px solid rgba(124,58,237,0.15);
+    border-radius: var(--radius); padding: 1.5rem; transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+  }
+  .dash-card:hover { border-color: rgba(124,58,237,0.4); transform: translateY(-2px); }
+  .dash-card.featured { border-color: rgba(124,58,237,0.35); background: #120E22; }
+  .dash-icon {
+    width: 38px; height: 38px; border-radius: 9px;
+    background: rgba(124,58,237,0.15); display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .dash-icon svg { width: 19px; height: 19px; stroke: #A78BFA; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .dash-card h3 { font-family: var(--font-cond); font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.4rem; }
+  .dash-card p { font-size: 0.8rem; color: #6B7280; line-height: 1.6; }
+  .dash-tag {
+    display: inline-block; margin-top: 0.75rem;
+    background: rgba(124,58,237,0.15); color: #A78BFA;
+    padding: 2px 8px; border-radius: 4px; font-size: 0.67rem; font-weight: 700;
+    font-family: var(--font-cond); letter-spacing: 0.05em; text-transform: uppercase;
+  }
+
+  /* ── AUDIENCES ── */
+  .audiences { background: var(--white); }
+  .audiences-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 3rem; }
+  .audience-card {
+    border: 1px solid var(--gray-mid); border-radius: var(--radius); padding: 1.75rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .audience-card:hover { border-color: var(--violet-mid); box-shadow: 0 8px 30px rgba(124,58,237,0.07); }
+  .audience-icon {
+    width: 42px; height: 42px; border-radius: 10px; background: var(--violet-light);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;
+  }
+  .audience-icon svg { width: 21px; height: 21px; stroke: var(--violet); fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .audience-card h3 { font-family: var(--font-cond); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .audience-card p { font-size: 0.88rem; color: var(--text3); line-height: 1.65; }
+  .audience-use {
+    margin-top: 0.75rem; font-size: 0.78rem; color: var(--violet);
+    font-weight: 600; font-family: var(--font-cond); letter-spacing: 0.03em;
+  }
+
+  /* ── TECH ── */
+  .tech-section { background: var(--violet-light); padding: 5rem 6vw; }
+  .tech-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+  .tech-inner h2 { font-family: var(--font-cond); font-size: clamp(1.8rem,3.5vw,2.4rem); font-weight: 800; margin-bottom: 1rem; }
+  .tech-inner p { font-size: 1rem; color: var(--text3); max-width: 520px; margin: 0 auto 2.5rem; line-height: 1.7; }
+  .tech-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .tech-item {
+    background: var(--white); border: 1px solid var(--violet-mid);
+    border-radius: var(--radius-sm); padding: 0.65rem 1.25rem;
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-cond); font-size: 0.9rem; font-weight: 700; color: var(--violet-xdark);
+  }
+  .tech-item-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); flex-shrink: 0; }
+
+  /* ── CTA ── */
+  .cta-section { background: var(--dark); padding: 6rem 6vw; }
+  .cta-inner {
+    max-width: 1000px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start;
+  }
+  .cta-section h2 { color: var(--white); }
+  .cta-section .section-sub { color: #9CA3AF; }
+  .cta-ecosystem {
+    margin-top: 2.5rem; display: flex; flex-direction: column; gap: 10px;
+  }
+  .eco-chip {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--radius-sm);
+  }
+  .eco-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .eco-label { font-family: var(--font-cond); font-size: 0.82rem; font-weight: 700; color: #9CA3AF; }
+  .eco-name { font-family: var(--font-cond); font-size: 0.82rem; font-weight: 700; margin-left: auto; }
+  .cta-form { background: #110C22; border: 1px solid rgba(124,58,237,0.2); border-radius: var(--radius); padding: 2rem; }
+  .cta-form h3 { font-family: var(--font-cond); font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 1.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: #9CA3AF; margin-bottom: 0.35rem; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 0.65rem 0.9rem; border-radius: 8px;
+    background: #1A1030; border: 1px solid rgba(124,58,237,0.2);
+    color: var(--white); font-family: var(--font); font-size: 0.9rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-group input::placeholder { color: #6B7280; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--violet); }
+  .form-group select option { background: #1A1030; }
+  .btn-submit {
+    width: 100%; padding: 0.875rem; background: var(--violet); color: var(--white);
+    border: none; border-radius: 8px; font-family: var(--font); font-size: 0.95rem;
+    font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem;
+  }
+  .btn-submit:hover { background: var(--violet-dark); }
+  .cta-divider { display: flex; align-items: center; gap: 12px; margin: 1rem 0; }
+  .cta-divider::before, .cta-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+  .cta-divider span { font-size: 0.75rem; color: #6B7280; }
+  .btn-whatsapp {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 0.875rem; background: #25D366; color: var(--white);
+    border: none; border-radius: 8px; font-family: var(--font); font-size: 0.95rem;
+    font-weight: 700; cursor: pointer; transition: background 0.2s; text-decoration: none;
+  }
+  .btn-whatsapp:hover { background: #1DA851; }
+  .btn-whatsapp svg { width: 20px; height: 20px; fill: var(--white); flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #07040F; padding: 3rem 6vw 2rem;
+    border-top: 1px solid rgba(124,58,237,0.1);
+  }
+  .footer-inner { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 3rem; margin-bottom: 2.5rem; }
+  .footer-brand p { font-size: 0.85rem; color: #4B5563; line-height: 1.7; margin-top: 0.75rem; max-width: 280px; }
+  .footer-col h4 { font-family: var(--font-cond); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #374151; margin-bottom: 0.75rem; }
+  .footer-col a { display: block; font-size: 0.85rem; color: #4B5563; text-decoration: none; margin-bottom: 0.5rem; transition: color 0.2s; }
+  .footer-col a:hover { color: #6B7280; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.04); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  .footer-bottom p, .footer-bottom a { font-size: 0.78rem; color: #374151; text-decoration: none; }
+  .footer-bottom a:hover { color: #4B5563; }
+
+  /* ── FADE ── */
+  [data-fade] { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  [data-fade].visible { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 100px 5vw 60px; }
+    .hero-right { display: none; }
+    .how-grid { grid-template-columns: 1fr; }
+    .dash-grid { grid-template-columns: 1fr 1fr; }
+    .audiences-grid { grid-template-columns: 1fr; }
+    .cta-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+  }
+  @media (max-width: 600px) {
+    nav .nav-links { display: none; }
+    .dash-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://www.cendat.pro/inicio" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="8" fill="#F5F3FF"/>
+      <circle cx="13" cy="13" r="7" stroke="#7C3AED" stroke-width="1.8" fill="none"/>
+      <line x1="8" y1="11" x2="18" y2="11" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="8" y1="13.5" x2="18" y2="13.5" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="8" y1="16" x2="15" y2="16" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="13" cy="13" r="2" fill="#7C3AED" opacity="0.35"/>
+      <line x1="18.5" y1="18.5" x2="26" y2="26" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span class="nav-logo-text">CENDAT</span>
+    <span class="nav-logo-lens">lens</span>
+  </a>
+  <div class="nav-links">
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#dashboards">Análisis</a>
+    <a href="#audiencias">Casos de uso</a>
+    <a href="#contacto" class="nav-cta">Solicitar demo</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tagline">Radar detecta · Pulse siente · Lens <em style="color:#C4B5FD;font-style:normal">interpreta</em></div>
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Análisis de Lenguaje Natural — NLP
+    </div>
+    <h1>Sus textos cualitativos<br>tienen respuestas.<br>¿Las está <em>leyendo</em>?</h1>
+    <p class="hero-sub">CENDAT Lens transforma grandes volúmenes de texto — focus groups, encuestas abiertas, redes sociales, chats, transcripciones — en insights estructurados, sentimientos, tópicos y mapas de relaciones.</p>
+    <div class="hero-actions">
+      <a href="#contacto" class="btn-primary">
+        Solicitar demostración
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+      <a href="https://www.cendat.pro/inicio" target="_blank" class="btn-ghost">Ver plataforma</a>
+    </div>
+    <div class="hero-stats">
+      <div class="h-stat">
+        <div class="h-stat-val">9<span>+</span></div>
+        <div class="h-stat-label">Análisis de NLP</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-val">8</div>
+        <div class="h-stat-label">Emociones detectadas</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-val">100<span>%</span></div>
+        <div class="h-stat-label">Automatizado</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-mockup">
+      <div class="mockup-bar">
+        <div class="mockup-dot" style="background:#F87171"></div>
+        <div class="mockup-dot" style="background:#FBBF24"></div>
+        <div class="mockup-dot" style="background:#34D399"></div>
+        <span class="mockup-title">CENDAT Lens — Análisis de lenguaje natural</span>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-metrics">
+          <div class="m-metric"><div class="m-label">Palabras</div><div class="m-val violet">4,821</div></div>
+          <div class="m-metric"><div class="m-label">Sentim. pos.</div><div class="m-val green">67.6%</div></div>
+          <div class="m-metric"><div class="m-label">Tópicos</div><div class="m-val amber">5</div></div>
+        </div>
+        <div class="word-cloud-wrap">
+          <div class="wc-label">Nube de palabras — frecuencia mínima 2</div>
+          <div class="word-cloud">
+            <span class="word" style="font-size:2rem;color:#7C3AED">bienestar</span>
+            <span class="word" style="font-size:1.5rem;color:#A78BFA">adultos</span>
+            <span class="word" style="font-size:1.2rem;color:#C4B5FD">salud</span>
+            <span class="word" style="font-size:1.4rem;color:#6D28D9">consumidores</span>
+            <span class="word" style="font-size:0.9rem;color:#8B5CF6">comunidad</span>
+            <span class="word" style="font-size:1.1rem;color:#DDD6FE">marcas</span>
+            <span class="word" style="font-size:0.85rem;color:#A78BFA">ejercicios</span>
+            <span class="word" style="font-size:1.3rem;color:#7C3AED">conexión</span>
+            <span class="word" style="font-size:0.8rem;color:#C4B5FD">tiempo</span>
+            <span class="word" style="font-size:0.85rem;color:#8B5CF6">relaciones</span>
+            <span class="word" style="font-size:1rem;color:#6D28D9">persona</span>
+            <span class="word" style="font-size:0.75rem;color:#DDD6FE">tecnología</span>
+            <span class="word" style="font-size:0.8rem;color:#A78BFA">cuidado</span>
+            <span class="word" style="font-size:0.75rem;color:#C4B5FD">aislamiento</span>
+          </div>
+        </div>
+        <div class="sentiment-row">
+          <div class="sent-card">
+            <div class="sent-title">Sentimientos</div>
+            <div class="sent-bar-wrap">
+              <div class="sent-bar" style="width:67%;background:#34D399"></div>
+              <span class="sent-pct" style="color:#34D399">67.6</span>
+            </div>
+            <div class="sent-bar-wrap" style="margin-top:4px">
+              <div class="sent-bar" style="width:32%;background:#F87171"></div>
+              <span class="sent-pct" style="color:#F87171">32.4</span>
+            </div>
+          </div>
+          <div class="sent-card">
+            <div class="sent-title">Emoción principal</div>
+            <div style="font-family:var(--font-cond);font-size:1.1rem;font-weight:800;color:#A78BFA;margin-top:4px">Confianza</div>
+            <div style="font-size:0.72rem;color:#6B7280;margin-top:2px">29.8% · Seguido de Miedo 16.2%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAINS -->
+<section class="pains">
+  <div class="pains-header" data-fade>
+    <div class="section-label">El problema</div>
+    <h2>Lo que se pierde cuando<br>analizamos <em>a mano</em></h2>
+    <p class="section-sub">El análisis cualitativo manual tiene tres fallas estructurales que comprometen la calidad de las decisiones.</p>
+  </div>
+  <div class="pains-grid">
+    <div class="pain-card" data-fade>
+      <div class="pain-num">01</div>
+      <h3>El volumen aplasta al analista</h3>
+      <p>Nadie lee las 300 páginas de transcripciones. El análisis termina basándose en las notas del moderador y la memoria del equipo — no en los datos.</p>
+      <div class="pain-accent"></div>
+    </div>
+    <div class="pain-card" data-fade>
+      <div class="pain-num">02</div>
+      <h3>La subjetividad distorsiona los resultados</h3>
+      <p>Dos analistas leen el mismo texto y llegan a conclusiones distintas. Sin método sistemático, los reportes reflejan perspectivas, no evidencia.</p>
+      <div class="pain-accent"></div>
+    </div>
+    <div class="pain-card" data-fade>
+      <div class="pain-num">03</div>
+      <h3>Los patrones invisibles se pierden</h3>
+      <p>Las frecuencias de palabras, las emociones dominantes, los tópicos que emergen y las relaciones entre conceptos — todo desaparece en la lectura lineal.</p>
+      <div class="pain-accent"></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="como-funciona">
+  <div style="text-align:center;margin-bottom:1rem" data-fade>
+    <div class="section-label" style="justify-content:center">Cómo funciona</div>
+    <h2>Del texto caótico<br>al <em>insight estructurado</em></h2>
+    <p class="section-sub" style="margin:1rem auto 0">Un pipeline automatizado que convierte cualquier fuente de texto en análisis listos para decisiones.</p>
+  </div>
+  <div class="how-grid">
+    <div class="how-steps" data-fade>
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <div class="how-step-content">
+          <h3>Ingesta de fuentes</h3>
+          <p>Acepta textos de cualquier origen: focus groups, entrevistas, redes sociales, encuestas abiertas, WhatsApp, call centers, noticias y más.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <div class="how-step-content">
+          <h3>Transcripción automática de audios</h3>
+          <p>Para fuentes de audio o video, CENDAT Lens utiliza Google Speech-to-Text para generar transcripciones con alta precisión en español.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <div class="how-step-content">
+          <h3>Depuración y normalización</h3>
+          <p>El equipo de CENDAT limpia el texto, elimina ruido y prepara el corpus para el análisis con algoritmos NLP desarrollados en R.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">4</div>
+        <div class="how-step-content">
+          <h3>Visuales en Power BI</h3>
+          <p>Los resultados se presentan en dashboards interactivos — nubes de palabras, clusters, tópicos, sentimientos y emociones — accesibles desde web o móvil.</p>
+        </div>
+      </div>
+    </div>
+    <div data-fade>
+      <div class="how-visual">
+        <div style="font-size:0.65rem;color:#6B7280;letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:1rem">Pipeline de procesamiento</div>
+        <div class="flow-item">
+          <div class="flow-icon-wrap"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></div>
+          <div><div class="flow-text-main">Fuentes de texto</div><div class="flow-text-sub">Textos, audios, videos, redes sociales</div></div>
+          <div class="flow-arrow">→</div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></div>
+          <div><div class="flow-text-main">Google Speech-to-Text</div><div class="flow-text-sub">Transcripción automática de audios</div></div>
+          <div class="flow-arrow">→</div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-icon-wrap"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <div><div class="flow-text-main">Algoritmos NLP en R</div><div class="flow-text-sub">LDA, K-Means, NRC, clustering</div></div>
+          <div class="flow-arrow">→</div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-icon-wrap" style="background:rgba(52,211,153,0.1)"><svg viewBox="0 0 24 24" style="stroke:#34D399"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+          <div><div class="flow-text-main">Dashboards Power BI</div><div class="flow-text-sub">9+ análisis interactivos</div></div>
+          <div class="flow-arrow" style="color:#34D399">✓</div>
+        </div>
+        <div class="tech-pills">
+          <span class="tech-pill">R + RStudio</span>
+          <span class="tech-pill">Power BI</span>
+          <span class="tech-pill">Google Speech</span>
+          <span class="tech-pill">LDA · K-Means</span>
+          <span class="tech-pill">NRC Lexicon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARDS -->
+<section class="dashboards" id="dashboards">
+  <div data-fade style="text-align:center;max-width:600px;margin:0 auto">
+    <div class="section-label" style="justify-content:center">La plataforma</div>
+    <h2 style="color:var(--white)">9+ análisis de <em style="color:#A78BFA">NLP</em><br>en un solo lugar</h2>
+    <p class="section-sub" style="margin:1rem auto 0">Desde frecuencias básicas hasta modelos de tópicos con LDA y análisis de emociones con NRC.</p>
+  </div>
+  <div class="dash-grid" data-fade>
+    <div class="dash-card featured">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></div>
+      <h3>Nube de palabras + verbatims</h3>
+      <p>Visualiza frecuencias de palabras y contextualiza cada término con los fragmentos de texto donde aparece.</p>
+      <span class="dash-tag">Exploratorio</span>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
+      <h3>Distribución de frecuencias</h3>
+      <p>Gráfico de barras con las palabras más mencionadas y filtros de frecuencia mínima.</p>
+      <span class="dash-tag">Frecuencia</span>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><path d="M5 8v6l7 4 7-4V8"/><path d="M12 14v4"/></svg></div>
+      <h3>Número óptimo de clusters</h3>
+      <p>Tres métodos simultáneos: Elbow, Silhouette promedio y Gap estadístico para determinar la segmentación ideal.</p>
+      <span class="dash-tag">Clustering</span>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><path d="M22 12H2M12 2v20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07"/></svg></div>
+      <h3>Dendrograma — cluster jerárquico</h3>
+      <p>Representación visual del árbol de agrupaciones y tabla de pertenencia por palabra.</p>
+      <span class="dash-tag">Jerárquico</span>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6 8v8M18 8v8M8 18h8"/></svg></div>
+      <h3>Mapa bidimensional K-Means</h3>
+      <p>Cluster no jerárquico con componentes principales: visualiza la distribución espacial de agrupaciones.</p>
+      <span class="dash-tag">K-Means</span>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+      <h3>Número óptimo de tópicos</h3>
+      <p>Cuatro referencias (Griffiths2004, CaoJuan2009, Arun2010, Deveaud2014) para calibrar el modelo LDA.</p>
+      <span class="dash-tag">LDA</span>
+    </div>
+    <div class="dash-card featured">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <h3>Tópicos y su tendencia</h3>
+      <p>Identificación de temas emergentes en el texto, composición por palabras y evolución a lo largo del discurso.</p>
+      <span class="dash-tag">Tópicos</span>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+      <h3>Análisis de sentimientos</h3>
+      <p>Positivo vs. negativo con puntaje de concordancia por palabra y tendencia narrativa a lo largo del texto.</p>
+      <span class="dash-tag">Sentimientos</span>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon"><svg viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg></div>
+      <h3>8 emociones + mapa de relaciones</h3>
+      <p>Confianza, miedo, expectación, tristeza, alegría, enojo, sorpresa y disgusto. Más mapa conceptual de co-ocurrencias.</p>
+      <span class="dash-tag">Emociones · NRC</span>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCES -->
+<section class="audiences" id="audiencias">
+  <div data-fade style="text-align:center;max-width:580px;margin:0 auto 3rem">
+    <div class="section-label" style="justify-content:center">¿Quién lo usa?</div>
+    <h2>Hecho para quienes<br>trabajan con <em>texto cualitativo</em></h2>
+  </div>
+  <div class="audiences-grid">
+    <div class="audience-card" data-fade>
+      <div class="audience-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <h3>Agencias de investigación de mercados</h3>
+      <p>Analiza automáticamente transcripciones de focus groups y entrevistas a profundidad. Detecta patrones que el análisis manual perdería en semanas.</p>
+      <div class="audience-use">→ Focus groups · entrevistas · NPS abierto</div>
+    </div>
+    <div class="audience-card" data-fade>
+      <div class="audience-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <h3>Áreas de inteligencia de mercado</h3>
+      <p>Social listening a escala. Monitorea conversaciones en redes, comentarios de clientes, reseñas y chats de atención con análisis de sentimientos en tiempo real.</p>
+      <div class="audience-use">→ Redes sociales · reseñas · call center</div>
+    </div>
+    <div class="audience-card" data-fade>
+      <div class="audience-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+      <h3>Instituciones académicas y centros de investigación</h3>
+      <p>Análisis de corpus textuales con metodologías rigurosas: LDA, K-Means, Elbow, NRC. Resultados reproducibles y exportables para publicación.</p>
+      <div class="audience-use">→ Corpus académicos · análisis de discurso</div>
+    </div>
+    <div class="audience-card" data-fade>
+      <div class="audience-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <h3>Sector público y ONGs</h3>
+      <p>Procesa consultas ciudadanas, evaluaciones de programas y entrevistas de campo. Convierte respuestas abiertas en insumo estructurado para política pública.</p>
+      <div class="audience-use">→ Consultas ciudadanas · evaluaciones</div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH -->
+<section class="tech-section">
+  <div class="tech-inner" data-fade>
+    <div class="section-label" style="justify-content:center;color:var(--violet)">Tecnología</div>
+    <h2>Ciencia de datos aplicada<br>al <em>lenguaje humano</em></h2>
+    <p>CENDAT Lens está construido sobre las herramientas más robustas del ecosistema de NLP y análisis estadístico de texto.</p>
+    <div class="tech-grid">
+      <div class="tech-item"><span class="tech-item-dot"></span>R + RStudio</div>
+      <div class="tech-item"><span class="tech-item-dot"></span>Microsoft Power BI</div>
+      <div class="tech-item"><span class="tech-item-dot"></span>Google Speech-to-Text</div>
+      <div class="tech-item"><span class="tech-item-dot"></span>LDA (Latent Dirichlet Allocation)</div>
+      <div class="tech-item"><span class="tech-item-dot"></span>K-Means · Cluster jerárquico</div>
+      <div class="tech-item"><span class="tech-item-dot"></span>NRC Emotion Lexicon</div>
+      <div class="tech-item"><span class="tech-item-dot"></span>Método Elbow · Silhouette · Gap</div>
+      <div class="tech-item"><span class="tech-item-dot"></span>DAX (Power BI)</div>
+      <div class="tech-item"><span class="tech-item-dot"></span>PCA · Componentes principales</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contacto">
+  <div class="cta-inner">
+    <div data-fade>
+      <div class="section-label" style="color:#A78BFA"><span style="background:#A78BFA"></span>Comienza ahora</div>
+      <h2 style="color:var(--white)">Convierta sus textos<br>en <em style="color:#A78BFA">conocimiento accionable</em></h2>
+      <p class="section-sub" style="margin-top:1rem">Una demo personalizada con datos reales de su industria. Vea en vivo cómo CENDAT Lens transforma transcripciones en insights.</p>
+      <div class="cta-ecosystem">
+        <div style="font-family:var(--font-cond);font-size:0.7rem;color:#4B5563;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:4px">Ecosistema CENDAT</div>
+        <div class="eco-chip">
+          <div class="eco-dot" style="background:#E8620A"></div>
+          <span class="eco-label">Detecta dónde</span>
+          <span class="eco-name" style="color:#E8620A">CENDAT Radar</span>
+        </div>
+        <div class="eco-chip">
+          <div class="eco-dot" style="background:#2563EB"></div>
+          <span class="eco-label">Siente los precios</span>
+          <span class="eco-name" style="color:#2563EB">CENDAT Pulse</span>
+        </div>
+        <div class="eco-chip">
+          <div class="eco-dot" style="background:#7C3AED"></div>
+          <span class="eco-label">Interpreta el lenguaje</span>
+          <span class="eco-name" style="color:#7C3AED">CENDAT Lens</span>
+        </div>
+      </div>
+    </div>
+    <div data-fade>
+      <div class="cta-form">
+        <h3>Solicitar demostración</h3>
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+          <label>Empresa / Institución</label>
+          <input type="text" placeholder="Nombre de la organización">
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" placeholder="tu@empresa.com">
+        </div>
+        <div class="form-group">
+          <label>Tipo de fuente de texto</label>
+          <select>
+            <option>Focus groups / entrevistas</option>
+            <option>Redes sociales</option>
+            <option>Encuestas abiertas</option>
+            <option>Call center / chats</option>
+            <option>Consultas ciudadanas</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>País</label>
+          <select>
+            <option>Panamá</option>
+            <option>Costa Rica</option>
+            <option>Guatemala</option>
+            <option>Honduras</option>
+            <option>El Salvador</option>
+            <option>Nicaragua</option>
+            <option>México</option>
+            <option>Colombia</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <button class="btn-submit" onclick="window.open('https://www.cendat.pro/contacto','_blank')">
+          Solicitar demo gratuita →
+        </button>
+        <div class="cta-divider"><span>o contáctanos directamente</span></div>
+        <a href="https://wa.me/50762261991?text=Hola,%20me%20interesa%20una%20demo%20de%20CENDAT%20Lens" target="_blank" class="btn-whatsapp">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp +507 6226-1991
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="https://www.cendat.pro/inicio" class="nav-logo" style="text-decoration:none">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#2E1065"/>
+          <circle cx="13" cy="13" r="7" stroke="#A78BFA" stroke-width="1.8" fill="none"/>
+          <line x1="8" y1="11" x2="18" y2="11" stroke="#A78BFA" stroke-width="1.3" stroke-linecap="round"/>
+          <line x1="8" y1="13.5" x2="18" y2="13.5" stroke="#A78BFA" stroke-width="1.3" stroke-linecap="round"/>
+          <line x1="8" y1="16" x2="15" y2="16" stroke="#A78BFA" stroke-width="1.3" stroke-linecap="round"/>
+          <line x1="18.5" y1="18.5" x2="26" y2="26" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span style="font-family:var(--font-cond);font-weight:700;font-size:1.1rem;color:#4B5563">CENDAT <span style="color:#7C3AED">lens</span></span>
+      </a>
+      <p>Sistema de análisis de lenguaje natural (NLP). Transforma textos cualitativos en conocimiento estructurado.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Producto</h4>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#dashboards">Análisis</a>
+      <a href="#audiencias">Casos de uso</a>
+      <a href="https://www.cendat.pro/contacto" target="_blank">Solicitar demo</a>
+    </div>
+    <div class="footer-col">
+      <h4>CENDAT</h4>
+      <a href="https://www.cendat.pro/inicio" target="_blank">Inicio</a>
+      <a href="https://www.cendat.pro/contacto" target="_blank">Contacto</a>
+      <a href="https://wa.me/50762261991?text=Hola,%20me%20interesa%20una%20demo%20de%20CENDAT%20Lens" target="_blank">WhatsApp</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 CENDAT. Todos los derechos reservados.</p>
+    <a href="https://www.cendat.pro/inicio" target="_blank">www.cendat.pro</a>
+  </div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 90);
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('[data-fade]').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
